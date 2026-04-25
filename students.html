@@ -1,0 +1,61 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Manage Students{% endblock %}
+{% block role_label %}Admin Panel{% endblock %}
+{% block page_title %}<i class="bi bi-people" style="color:#10b981;"></i> Manage Students{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('admin.dashboard') }}" class="nav-item"><i class="bi bi-grid-fill nav-icon"></i> Dashboard</a>
+<a href="{{ url_for('admin.manage_companies') }}" class="nav-item"><i class="bi bi-building nav-icon"></i> Companies</a>
+<a href="{{ url_for('admin.manage_jobs') }}" class="nav-item"><i class="bi bi-briefcase nav-icon"></i> Jobs</a>
+<a href="{{ url_for('admin.manage_students') }}" class="nav-item active"><i class="bi bi-people nav-icon"></i> Students</a>
+<a href="{{ url_for('admin.reports') }}" class="nav-item"><i class="bi bi-bar-chart nav-icon"></i> Reports</a>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass p-card">
+  {% if students %}
+    <table class="data-table">
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Skills</th><th>Profile</th><th>Resume</th><th>Registered</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        <tr>
+          <td style="font-weight:600;color:#e2e8f0;">{{ s.name }}</td>
+          <td class="text-xs text-muted">{{ s.email }}</td>
+          <td class="text-xs text-muted" style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            {{ s.skills or '—' }}
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <div class="progress-bar-wrap" style="width:60px;height:4px;">
+                <div class="progress-bar-fill" style="width:{{ s.profile_score or 0 }}%;"></div>
+              </div>
+              <span class="text-xs text-muted">{{ s.profile_score or 0 }}%</span>
+            </div>
+          </td>
+          <td>
+            {% if s.resume_path %}
+              <span class="badge badge-approved">✓</span>
+            {% else %}
+              <span class="badge badge-pending">✗</span>
+            {% endif %}
+          </td>
+          <td class="text-xs text-muted">{{ s.created_at[:10] }}</td>
+          <td>
+            <form method="POST" action="{{ url_for('admin.delete_student', sid=s.id) }}" onsubmit="return confirm('Delete student and all their data?')">
+              <button class="btn-danger-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div style="text-align:center;padding:3rem;color:#475569;">No students registered yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block role_label %}Company Portal{% endblock %}
+{% block page_title %}<i class="bi bi-bell" style="color:#f59e0b;"></i> Notifications{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('company.dashboard') }}" class="nav-item"><i class="bi bi-grid-fill nav-icon"></i> Dashboard</a>
+<a href="{{ url_for('company.post_job') }}" class="nav-item"><i class="bi bi-plus-circle nav-icon"></i> Post a Job</a>
+<a href="{{ url_for('company.my_jobs') }}" class="nav-item"><i class="bi bi-list-ul nav-icon"></i> My Jobs</a>
+<a href="{{ url_for('company.notifications') }}" class="nav-item active"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;">
+  {% if notifications %}
+    {% for n in notifications %}
+    <div class="glass p-card mb-2">
+      <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+        <div style="font-size:1.2rem;">🏢</div>
+        <div>
+          <div class="text-sm" style="color:#e2e8f0;">{{ n.message }}</div>
+          <div class="text-xs text-muted mt-1">{{ n.created_at[:16] }}</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="glass p-card" style="text-align:center;padding:4rem 2rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">🔔</div>
+      <div style="color:#94a3b8;">No notifications yet</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

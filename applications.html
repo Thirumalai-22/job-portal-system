@@ -1,0 +1,55 @@
+{% extends "dashboard_base.html" %}
+{% block title %}My Applications{% endblock %}
+{% block role_label %}Student Portal{% endblock %}
+{% block page_title %}<i class="bi bi-file-earmark-text" style="color:#6366f1;"></i> My Applications{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('student.dashboard') }}" class="nav-item"><i class="bi bi-grid-fill nav-icon"></i> Dashboard</a>
+<a href="{{ url_for('student.profile') }}" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> My Profile</a>
+<a href="{{ url_for('student.browse_jobs') }}" class="nav-item"><i class="bi bi-briefcase nav-icon"></i> Browse Jobs</a>
+<a href="{{ url_for('student.my_applications') }}" class="nav-item active"><i class="bi bi-file-earmark-text nav-icon"></i> My Applications</a>
+<a href="{{ url_for('student.notifications') }}" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+{% if applications %}
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+    {% for app in applications %}
+    <div class="job-card" style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:center;">
+      <div>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+          <div class="company-logo" style="width:38px;height:38px;font-size:0.9rem;background:linear-gradient(135deg,hsl({{ loop.index0 * 53 % 360 }},70%,50%),hsl({{ (loop.index0 * 53 + 60) % 360 }},70%,40%));">
+            {{ app.company_name[0].upper() }}
+          </div>
+          <div>
+            <div style="font-weight:700;color:#e2e8f0;">{{ app.title }}</div>
+            <div class="text-xs text-muted">{{ app.company_name }} · {{ app.job_type }} · {{ app.location or 'Remote' }}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <span class="badge badge-{{ app.status|lower }}">{{ app.status }}</span>
+          <span class="text-xs text-muted" style="align-self:center;">Applied {{ app.applied_at[:10] }}</span>
+        </div>
+        {% if app.cover_letter %}
+          <div class="text-xs text-muted mt-1" style="max-width:500px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            "{{ app.cover_letter }}"
+          </div>
+        {% endif %}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;text-align:right;">
+        <a href="{{ url_for('student.resume_analyzer', job_id=app.job_id) }}" class="btn-outline-custom" style="font-size:0.78rem;padding:0.4rem 0.85rem;">
+          <i class="bi bi-robot"></i> Analyze
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="glass p-card" style="text-align:center;padding:4rem 2rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">📋</div>
+    <div style="font-size:1.1rem;color:#94a3b8;margin-bottom:1rem;">No applications yet</div>
+    <a href="{{ url_for('student.browse_jobs') }}" class="btn-primary-custom">Browse Jobs →</a>
+  </div>
+{% endif %}
+{% endblock %}

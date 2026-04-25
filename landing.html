@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block meta_desc %}Find your dream job or the perfect candidate. PlacementPro connects students, companies and opportunities.{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Landing Page Styles ── */
+.landing-body {
+  background: #0a0a14;
+  min-height: 100vh;
+}
+
+/* Navbar */
+.nav-public {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  padding: 1rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(10,10,20,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.nav-logo { display: flex; align-items: center; gap: 0.75rem; font-weight: 800; font-size: 1.1rem; color: #fff; }
+.nav-logo .logo-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+.nav-links { display: flex; align-items: center; gap: 0.5rem; }
+.nav-links a {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.25s;
+}
+.nav-links a:hover { background: rgba(255,255,255,0.06); color: #fff; }
+
+/* Hero */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 8rem 2rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 80% 60%, rgba(139,92,246,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 40% at 20% 70%, rgba(59,130,246,0.1) 0%, transparent 50%);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #a5b4fc;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.8s ease;
+}
+.hero-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+  animation: slideUp 0.8s ease 0.1s both;
+}
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  max-width: 540px;
+  margin: 0 auto 2.5rem;
+  animation: slideUp 0.8s ease 0.2s both;
+}
+.hero-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  justify-content: center;
+  animation: slideUp 0.8s ease 0.3s both;
+}
+.hero-scroll {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  font-size: 1.5rem; color: #64748b;
+  animation: bounce 1.5s infinite;
+}
+@keyframes bounce {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-10px); }
+}
+
+/* Stats */
+.stats-bar {
+  display: flex; gap: 2rem; flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 4rem;
+  animation: slideUp 0.8s ease 0.4s both;
+}
+.stat-item { text-align: center; }
+.stat-num { font-size: 1.8rem; font-weight: 800; color: #fff; font-family: 'Plus Jakarta Sans',sans-serif; }
+.stat-desc { font-size: 0.8rem; color: #64748b; }
+.stat-divider { width: 1px; background: rgba(255,255,255,0.1); align-self: stretch; margin: 0.25rem 0; }
+
+/* Role Cards */
+.roles-section {
+  padding: 5rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.roles-title { text-align: center; font-size: 2rem; color: #fff; margin-bottom: 0.75rem; }
+.roles-sub { text-align: center; color: #64748b; margin-bottom: 3rem; }
+.roles-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+@media(max-width:768px){ .roles-grid { grid-template-columns: 1fr; } }
+
+.role-card {
+  padding: 2rem;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.role-card:hover { transform: translateY(-6px); }
+.role-card.student {
+  background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.08));
+  border: 1px solid rgba(99,102,241,0.25);
+}
+.role-card.company {
+  background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.08));
+  border: 1px solid rgba(245,158,11,0.25);
+}
+.role-card.admin {
+  background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.08));
+  border: 1px solid rgba(16,185,129,0.25);
+}
+.role-icon {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.role-card.student .role-icon { background: rgba(99,102,241,0.2); }
+.role-card.company .role-icon { background: rgba(245,158,11,0.2); }
+.role-card.admin .role-icon   { background: rgba(16,185,129,0.2); }
+.role-card h3 { font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem; }
+.role-card p  { font-size: 0.85rem; color: #94a3b8; line-height: 1.6; margin-bottom: 1.5rem; }
+.role-features { list-style: none; margin-bottom: 1.5rem; }
+.role-features li {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  padding: 0.3rem 0;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.role-features li::before { content: '✓'; color: #6ee7b7; font-weight: 700; }
+
+/* Jobs Section */
+.jobs-section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+.jobs-section .section-title { font-size: 1.8rem; color: #fff; margin-bottom: 0.5rem; }
+.jobs-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; margin-top: 2rem; }
+@media(max-width:768px){ .jobs-grid { grid-template-columns: 1fr; } }
+
+/* CTA */
+.cta-section {
+  padding: 5rem 2rem;
+  text-align: center;
+  position: relative;
+}
+.cta-box {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 3rem;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08));
+  border: 1px solid rgba(99,102,241,0.2);
+}
+.cta-box h2 { font-size: 2rem; color: #fff; margin-bottom: 1rem; }
+.cta-box p  { color: #94a3b8; margin-bottom: 2rem; }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 2rem;
+  color: #475569;
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="landing-body">
+  <!-- Navbar -->
+  <nav class="nav-public">
+    <div class="nav-logo">
+      <div class="logo-icon">🎯</div>
+      PlacementPro
+    </div>
+    <div class="nav-links">
+      {% if session.get('user_id') %}
+        <a href="{{ url_for('main.dashboard_redirect') }}">
+          <i class="bi bi-grid-fill"></i> Dashboard
+        </a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Sign In</a>
+        <a href="{{ url_for('auth.register_student') }}" class="btn-primary-custom">Get Started →</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div style="position:relative; z-index:1;">
+      <div class="hero-badge">
+        <span>🚀</span> AI-Powered Placement Platform
+      </div>
+      <h1 class="hero-title">
+        Your Dream Career<br>
+        <span class="text-gradient">Starts Here</span>
+      </h1>
+      <p class="hero-subtitle">
+        Connect students with top companies. Smart job matching, AI resume analysis, 
+        and seamless placement management — all in one platform.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('auth.register_student') }}" class="btn-primary-custom">
+          <i class="bi bi-mortarboard-fill"></i> I'm a Student
+        </a>
+        <a href="{{ url_for('auth.register_company') }}" class="btn-outline-custom">
+          <i class="bi bi-building"></i> Post a Job
+        </a>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="stat-num">{{ total_jobs }}+</div>
+          <div class="stat-desc">Active Jobs</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-num">{{ total_companies }}+</div>
+          <div class="stat-desc">Companies</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-num">{{ total_students }}+</div>
+          <div class="stat-desc">Students</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-num">{{ total_placed }}+</div>
+          <div class="stat-desc">Placed</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <i class="bi bi-chevron-double-down"></i>
+    </div>
+  </section>
+
+  <!-- Role Cards -->
+  <section class="roles-section">
+    <h2 class="roles-title">Built for Everyone</h2>
+    <p class="roles-sub">Three powerful dashboards tailored for each user type</p>
+    <div class="roles-grid">
+      <div class="role-card student">
+        <div class="role-icon">🎓</div>
+        <h3>For Students</h3>
+        <p>Build your career profile, get AI-powered job recommendations, and track applications in real-time.</p>
+        <ul class="role-features">
+          <li>Smart resume analyzer</li>
+          <li>Personalized job recommendations</li>
+          <li>Application status tracking</li>
+          <li>Interview notifications</li>
+        </ul>
+        <a href="{{ url_for('auth.register_student') }}" class="btn-primary-custom" style="width:100%;justify-content:center;">
+          Join as Student →
+        </a>
+      </div>
+      <div class="role-card company">
+        <div class="role-icon">🏢</div>
+        <h3>For Companies</h3>
+        <p>Post jobs, review applicants with AI-scored resumes, and schedule interviews effortlessly.</p>
+        <ul class="role-features">
+          <li>Post & manage job listings</li>
+          <li>Review & shortlist applicants</li>
+          <li>Schedule interviews online</li>
+          <li>Analytics dashboard</li>
+        </ul>
+        <a href="{{ url_for('auth.register_company') }}" class="btn-outline-custom" style="width:100%;justify-content:center;border-color:rgba(245,158,11,0.4);color:#fcd34d;">
+          Register Company →
+        </a>
+      </div>
+      <div class="role-card admin">
+        <div class="role-icon">⚡</div>
+        <h3>For Admins</h3>
+        <p>Oversee the entire platform — approve companies, manage postings, and generate analytics reports.</p>
+        <ul class="role-features">
+          <li>Approve companies & jobs</li>
+          <li>Full user management</li>
+          <li>Analytics & CSV reports</li>
+          <li>Platform oversight</li>
+        </ul>
+        <a href="{{ url_for('auth.login') }}" class="btn-outline-custom" style="width:100%;justify-content:center;border-color:rgba(16,185,129,0.4);color:#6ee7b7;">
+          Admin Login →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Jobs -->
+  {% if recent_jobs %}
+  <section class="jobs-section">
+    <h2 class="section-title">Latest Opportunities</h2>
+    <p class="text-muted text-sm">Fresh job postings from top companies</p>
+    <div class="jobs-grid">
+      {% for job in recent_jobs %}
+      <div class="job-card">
+        <div style="display:flex;gap:1rem;align-items:flex-start;">
+          <div class="company-logo">{{ job.company_name[0].upper() }}</div>
+          <div style="flex:1;">
+            <div class="job-title">{{ job.title }}</div>
+            <div class="job-meta">{{ job.company_name }} · {{ job.location or 'Remote' }}</div>
+            <div class="job-tags">
+              <span class="job-tag">{{ job.job_type }}</span>
+              {% if job.salary %}<span class="job-tag">{{ job.salary }}</span>{% endif %}
+            </div>
+          </div>
+          <a href="{{ url_for('auth.login') }}" class="btn-primary-custom" style="padding:0.5rem 1rem;font-size:0.8rem;flex-shrink:0;">
+            Apply
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div style="text-align:center;margin-top:2rem;">
+      <a href="{{ url_for('auth.register_student') }}" class="btn-outline-custom">
+        View All Jobs →
+      </a>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-box">
+      <h2>Ready to Launch Your Career? 🚀</h2>
+      <p>Join thousands of students and hundreds of companies on PlacementPro today.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('auth.register_student') }}" class="btn-primary-custom">
+          Start as Student
+        </a>
+        <a href="{{ url_for('auth.register_company') }}" class="btn-outline-custom">
+          Register Company
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 PlacementPro · Smart Job Portal / Placement Management System</p>
+    <p style="margin-top:0.5rem;">
+      <a href="{{ url_for('auth.login') }}" style="color:#475569;">Admin</a> ·
+      <a href="{{ url_for('auth.register_student') }}" style="color:#475569;">Student</a> ·
+      <a href="{{ url_for('auth.register_company') }}" style="color:#475569;">Company</a>
+    </p>
+  </footer>
+</div>
+{% endblock %}

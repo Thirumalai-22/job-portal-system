@@ -1,0 +1,5 @@
+Flask>=3.1.0
+Werkzeug>=3.1.0
+# pdfminer.six  -- install when network available
+# python-docx   -- install when network available
+# PyMySQL       -- using SQLite for now (built-in)

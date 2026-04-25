@@ -1,0 +1,126 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Resume Analyzer{% endblock %}
+{% block role_label %}Student Portal{% endblock %}
+{% block page_title %}<i class="bi bi-robot" style="color:#6366f1;"></i> AI Resume Analyzer{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('student.dashboard') }}" class="nav-item"><i class="bi bi-grid-fill nav-icon"></i> Dashboard</a>
+<a href="{{ url_for('student.browse_jobs') }}" class="nav-item active"><i class="bi bi-briefcase nav-icon"></i> Browse Jobs</a>
+<a href="{{ url_for('student.my_applications') }}" class="nav-item"><i class="bi bi-file-earmark-text nav-icon"></i> My Applications</a>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;">
+  <!-- Job Info -->
+  <div class="glass p-card mb-3">
+    <div style="font-weight:700;color:#e2e8f0;font-size:1.1rem;">{{ job.title }}</div>
+    <div class="text-muted text-sm">Resume compatibility analysis</div>
+  </div>
+
+  {% if result.error and not result.score %}
+    <div class="flash flash-warning">
+      <i class="bi bi-exclamation-triangle"></i>
+      {{ result.error }}
+      {% if 'No resume' in result.error %}
+        <a href="{{ url_for('student.profile') }}" style="color:#fcd34d;margin-left:0.5rem;">Upload Resume →</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <!-- Score Card -->
+  <div class="glass p-card mb-3" style="text-align:center;">
+    <div style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;">Match Score</div>
+    <div style="position:relative;width:160px;height:160px;margin:0 auto 1.5rem;">
+      <canvas id="scoreGauge"></canvas>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+        <div style="font-size:2.2rem;font-weight:800;color:#fff;">{{ result.score }}%</div>
+        <div style="font-size:0.7rem;color:#64748b;">
+          {% if result.score >= 80 %}Excellent{% elif result.score >= 60 %}Good{% elif result.score >= 40 %}Fair{% else %}Needs Work{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if result.error and result.score == 0 %}
+      <div class="text-sm text-muted">{{ result.error }}</div>
+    {% else %}
+      <div style="font-size:0.85rem;color:#94a3b8;">
+        Matched {{ result.matched|length }} of {{ result.total_required }} required skills
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Matched / Missing Skills -->
+  {% if result.matched or result.missing %}
+  <div class="grid-2">
+    <div class="glass p-card">
+      <div class="section-title mb-2" style="color:#6ee7b7;">✓ Matched Skills</div>
+      {% if result.matched %}
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+          {% for s in result.matched %}
+            <span style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:#6ee7b7;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.78rem;">
+              ✓ {{ s }}
+            </span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-sm text-muted">No matched skills detected</div>
+      {% endif %}
+    </div>
+    <div class="glass p-card">
+      <div class="section-title mb-2" style="color:#fca5a5;">✗ Missing Skills</div>
+      {% if result.missing %}
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+          {% for s in result.missing %}
+            <span style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#fca5a5;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.78rem;">
+              ✗ {{ s }}
+            </span>
+          {% endfor %}
+        </div>
+        <div class="text-xs text-muted mt-2">Add these skills to your resume to improve your score.</div>
+      {% else %}
+        <div class="text-sm" style="color:#6ee7b7;">All required skills found! 🎉</div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div style="margin-top:1.5rem;display:flex;gap:1rem;">
+    <a href="{{ url_for('student.apply', job_id=job.id) }}" class="btn-primary-custom">
+      <i class="bi bi-send-fill"></i> Apply Now
+    </a>
+    <a href="{{ url_for('student.profile') }}" class="btn-outline-custom">
+      <i class="bi bi-pencil"></i> Update Resume
+    </a>
+    <a href="{{ url_for('student.browse_jobs') }}" class="btn-outline-custom">
+      ← Back to Jobs
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block dashboard_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const score = {{ result.score }};
+const ctx = document.getElementById('scoreGauge').getContext('2d');
+new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    datasets: [{
+      data: [score, 100 - score],
+      backgroundColor: [
+        score >= 80 ? '#10b981' : score >= 60 ? '#6366f1' : score >= 40 ? '#f59e0b' : '#ef4444',
+        'rgba(255,255,255,0.05)'
+      ],
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    cutout: '78%',
+    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    animation: { duration: 1200, easing: 'easeInOutQuart' }
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Register Company{% endblock %}
+
+{% block extra_css %}
+<style>
+.auth-wrapper { min-height:100vh;background:#0a0a14;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden; }
+.auth-bg { position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 70% 30%, rgba(245,158,11,0.15) 0%, transparent 60%),radial-gradient(ellipse 40% 40% at 30% 70%, rgba(239,68,68,0.1) 0%, transparent 50%);pointer-events:none; }
+.auth-card { width:100%;max-width:480px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(30px);border-radius:24px;padding:2.5rem;animation:slideUp 0.5s ease;position:relative;z-index:1; }
+.auth-logo { display:flex;align-items:center;gap:0.75rem;margin-bottom:2rem;text-decoration:none; }
+.auth-logo .icon { width:40px;height:40px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem; }
+.auth-logo .text { font-weight:800;font-size:1.1rem;color:#fff; }
+.auth-logo .sub  { font-size:0.7rem;color:#64748b; }
+.auth-title { font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:0.4rem; }
+.auth-sub   { font-size:0.9rem;color:#64748b;margin-bottom:2rem; }
+.auth-footer { text-align:center;margin-top:1.5rem;font-size:0.875rem;color:#64748b; }
+.auth-footer a { color:#fcd34d;font-weight:600; }
+.notice { padding:0.85rem 1.25rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;font-size:0.85rem;color:#fcd34d;margin-bottom:1.5rem;display:flex;gap:0.5rem;align-items:flex-start; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="auth-bg"></div>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <a href="{{ url_for('main.index') }}" class="auth-logo">
+      <div class="icon">🏢</div>
+      <div>
+        <div class="text">Company Registration</div>
+        <div class="sub">PlacementPro</div>
+      </div>
+    </a>
+
+    <h1 class="auth-title">Register Your Company</h1>
+    <p class="auth-sub">Post jobs and find the best talent</p>
+
+    <div class="notice">
+      <i class="bi bi-info-circle-fill" style="flex-shrink:0;"></i>
+      Your registration will require admin approval before you can post jobs.
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}"><i class="bi bi-exclamation-circle"></i> {{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Company Name</label>
+        <input class="form-input" type="text" name="name" placeholder="Acme Corporation" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Business Email</label>
+        <input class="form-input" type="email" name="email" placeholder="hr@company.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Industry</label>
+        <select class="form-input" name="industry">
+          <option value="">Select Industry</option>
+          <option>Technology</option>
+          <option>Finance</option>
+          <option>Healthcare</option>
+          <option>Education</option>
+          <option>Manufacturing</option>
+          <option>Retail</option>
+          <option>Consulting</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" name="password" placeholder="Min. 6 characters" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input class="form-input" type="password" name="confirm_password" placeholder="Re-enter password" required>
+      </div>
+      <button type="submit" class="btn-primary-custom" style="width:100%;justify-content:center;padding:0.9rem;background:linear-gradient(135deg,#f59e0b,#ef4444);margin-top:0.5rem;">
+        <i class="bi bi-building"></i> Register Company
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Are you a student? <a href="{{ url_for('auth.register_student') }}">Register as Student</a>
+      &nbsp;·&nbsp; <a href="{{ url_for('auth.login') }}">Sign In</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

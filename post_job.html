@@ -1,0 +1,88 @@
+{% extends "dashboard_base.html" %}
+{% block title %}{{ 'Edit Job' if editing else 'Post a Job' }}{% endblock %}
+{% block role_label %}Company Portal{% endblock %}
+{% block page_title %}<i class="bi bi-{{ 'pencil' if editing else 'plus-circle' }}" style="color:#f59e0b;"></i> {{ 'Edit Job' if editing else 'Post a Job' }}{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('company.dashboard') }}" class="nav-item"><i class="bi bi-grid-fill nav-icon"></i> Dashboard</a>
+<a href="{{ url_for('company.post_job') }}" class="nav-item {{ 'active' if not editing }}"><i class="bi bi-plus-circle nav-icon"></i> Post a Job</a>
+<a href="{{ url_for('company.my_jobs') }}" class="nav-item"><i class="bi bi-list-ul nav-icon"></i> My Jobs</a>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;">
+  <div class="glass p-card">
+    <div class="section-title mb-3">{{ 'Edit Job Listing' if editing else 'Create New Job Posting' }}</div>
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Job Title *</label>
+        <input class="form-input" type="text" name="title" required
+               value="{{ job.title if job else '' }}" placeholder="e.g. Senior Python Developer">
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Job Type</label>
+          <select class="form-input" name="job_type">
+            {% for t in ['Full-Time','Part-Time','Internship','Remote','Contract'] %}
+              <option {{ 'selected' if job and job.job_type == t }}>{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <input class="form-input" type="text" name="location"
+                 value="{{ job.location if job else '' }}" placeholder="Bengaluru / Remote">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Salary / Stipend</label>
+        <input class="form-input" type="text" name="salary"
+               value="{{ job.salary if job else '' }}" placeholder="₹8–12 LPA or ₹25,000/month">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Application Deadline</label>
+        <input class="form-input" type="date" name="deadline"
+               value="{{ job.deadline if job else '' }}">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Skills Required <span class="text-xs text-muted">(comma-separated)</span></label>
+        <input class="form-input" type="text" name="skills_required"
+               value="{{ job.skills_required if job else '' }}"
+               placeholder="Python, Flask, SQL, REST APIs, Git">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Job Description *</label>
+        <textarea class="form-input" name="description" rows="5" required
+                  placeholder="Describe the role, responsibilities, and what you're looking for...">{{ job.description if job else '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Requirements</label>
+        <textarea class="form-input" name="requirements" rows="4"
+                  placeholder="Education requirements, experience, certifications...">{{ job.requirements if job else '' }}</textarea>
+      </div>
+
+      {% if editing %}
+        <div class="form-group" style="display:flex;align-items:center;gap:0.75rem;">
+          <input type="checkbox" name="is_active" id="is_active" {{ 'checked' if job.is_active }} style="width:18px;height:18px;accent-color:#6366f1;">
+          <label for="is_active" class="form-label" style="margin:0;">Job is Active</label>
+        </div>
+      {% endif %}
+
+      <div style="display:flex;gap:1rem;margin-top:0.5rem;">
+        <button type="submit" class="btn-primary-custom" style="background:linear-gradient(135deg,#f59e0b,#ef4444);padding:0.85rem 2rem;">
+          <i class="bi bi-{{ 'check-circle' if editing else 'send-fill' }}"></i>
+          {{ 'Update Job' if editing else 'Submit for Approval' }}
+        </button>
+        <a href="{{ url_for('company.my_jobs') }}" class="btn-outline-custom">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

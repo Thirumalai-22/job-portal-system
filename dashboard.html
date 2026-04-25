@@ -1,0 +1,244 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block role_label %}Admin Panel{% endblock %}
+{% block page_title %}<i class="bi bi-shield-check" style="color:#10b981;"></i> Admin Dashboard{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-label">Overview</div>
+<a href="{{ url_for('admin.dashboard') }}" class="nav-item {{ 'active' if request.endpoint == 'admin.dashboard' }}">
+  <i class="bi bi-grid-fill nav-icon"></i> Dashboard
+</a>
+<div class="nav-section-label">Management</div>
+<a href="{{ url_for('admin.manage_companies') }}" class="nav-item {{ 'active' if request.endpoint == 'admin.manage_companies' }}">
+  <i class="bi bi-building nav-icon"></i> Companies
+  {% if pending_companies > 0 %}<span class="nav-badge">{{ pending_companies }}</span>{% endif %}
+</a>
+<a href="{{ url_for('admin.manage_jobs') }}" class="nav-item {{ 'active' if request.endpoint == 'admin.manage_jobs' }}">
+  <i class="bi bi-briefcase nav-icon"></i> Jobs
+  {% if pending_jobs > 0 %}<span class="nav-badge">{{ pending_jobs }}</span>{% endif %}
+</a>
+<a href="{{ url_for('admin.manage_students') }}" class="nav-item {{ 'active' if request.endpoint == 'admin.manage_students' }}">
+  <i class="bi bi-people nav-icon"></i> Students
+</a>
+<div class="nav-section-label">Analytics</div>
+<a href="{{ url_for('admin.reports') }}" class="nav-item {{ 'active' if request.endpoint == 'admin.reports' }}">
+  <i class="bi bi-bar-chart nav-icon"></i> Reports
+</a>
+<a href="{{ url_for('admin.export_report') }}" class="nav-item">
+  <i class="bi bi-download nav-icon"></i> Export CSV
+</a>
+<div class="nav-section-label">Account</div>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="grid-4 mb-3">
+  <div class="stat-card gradient-emerald" style="animation-delay:0s">
+    <div class="stat-icon">🎓</div>
+    <div class="stat-value">{{ total_students }}</div>
+    <div class="stat-label">Total Students</div>
+  </div>
+  <div class="stat-card gradient-amber" style="animation-delay:0.1s">
+    <div class="stat-icon">🏢</div>
+    <div class="stat-value">{{ total_companies }}</div>
+    <div class="stat-label">Companies <span style="font-size:0.75rem;opacity:0.7;">({{ pending_companies }} pending)</span></div>
+  </div>
+  <div class="stat-card gradient-purple" style="animation-delay:0.2s">
+    <div class="stat-icon">💼</div>
+    <div class="stat-value">{{ total_jobs }}</div>
+    <div class="stat-label">Jobs <span style="font-size:0.75rem;opacity:0.7;">({{ pending_jobs }} pending)</span></div>
+  </div>
+  <div class="stat-card gradient-blue" style="animation-delay:0.3s">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value">{{ total_hired }}</div>
+    <div class="stat-label">Placed ({{ total_apps }} total)</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;">
+
+  <!-- Left: Pending Actions -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+    <!-- Pending Companies -->
+    {% if pending_co_list %}
+    <div class="glass p-card">
+      <div class="section-header mb-2">
+        <div class="section-title">⏳ Pending Company Approvals</div>
+        <a href="{{ url_for('admin.manage_companies', status='pending') }}" class="text-sm" style="color:#fcd34d;">View all →</a>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Company</th><th>Industry</th><th>Email</th><th>Registered</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for co in pending_co_list[:5] %}
+          <tr>
+            <td style="font-weight:600;color:#e2e8f0;">{{ co.name }}</td>
+            <td class="text-sm text-muted">{{ co.industry or '—' }}</td>
+            <td class="text-xs text-muted">{{ co.email }}</td>
+            <td class="text-xs text-muted">{{ co.created_at[:10] }}</td>
+            <td>
+              <div style="display:flex;gap:0.4rem;">
+                <form method="POST" action="{{ url_for('admin.approve_company', cid=co.id) }}">
+                  <button class="btn-success-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">✓ Approve</button>
+                </form>
+                <form method="POST" action="{{ url_for('admin.reject_company', cid=co.id) }}" onsubmit="return confirm('Reject and remove?')">
+                  <button class="btn-danger-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">✗ Reject</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- Pending Jobs -->
+    {% if pending_job_list %}
+    <div class="glass p-card">
+      <div class="section-header mb-2">
+        <div class="section-title">⏳ Pending Job Approvals</div>
+        <a href="{{ url_for('admin.manage_jobs', status='pending') }}" class="text-sm" style="color:#fcd34d;">View all →</a>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Job Title</th><th>Company</th><th>Type</th><th>Posted</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for job in pending_job_list[:5] %}
+          <tr>
+            <td style="font-weight:600;color:#e2e8f0;">{{ job.title }}</td>
+            <td class="text-sm text-muted">{{ job.company_name }}</td>
+            <td class="text-xs text-muted">{{ job.job_type }}</td>
+            <td class="text-xs text-muted">{{ job.created_at[:10] }}</td>
+            <td>
+              <div style="display:flex;gap:0.4rem;">
+                <form method="POST" action="{{ url_for('admin.approve_job', jid=job.id) }}">
+                  <button class="btn-success-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">✓ Approve</button>
+                </form>
+                <form method="POST" action="{{ url_for('admin.reject_job', jid=job.id) }}" onsubmit="return confirm('Reject?')">
+                  <button class="btn-danger-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">✗ Reject</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- Charts -->
+    <div class="glass p-card">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+        <div>
+          <div class="section-title mb-2" style="font-size:0.85rem;">Application Status</div>
+          <canvas id="statusChart" height="180"></canvas>
+        </div>
+        <div>
+          <div class="section-title mb-2" style="font-size:0.85rem;">Job Types</div>
+          <canvas id="typeChart" height="180"></canvas>
+        </div>
+        <div>
+          <div class="section-title mb-2" style="font-size:0.85rem;">Daily Registrations</div>
+          <canvas id="regChart" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Recent Users -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+    <div class="glass p-card">
+      <div class="section-header mb-2">
+        <div class="section-title">Recent Students</div>
+        <a href="{{ url_for('admin.manage_students') }}" class="text-sm" style="color:#6ee7b7;">All →</a>
+      </div>
+      {% for s in recent_students %}
+        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0;">
+            {{ s.name[0].upper() }}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.85rem;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ s.name }}</div>
+            <div class="text-xs text-muted">{{ s.created_at[:10] }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="glass p-card">
+      <div class="section-header mb-2">
+        <div class="section-title">Recent Companies</div>
+        <a href="{{ url_for('admin.manage_companies') }}" class="text-sm" style="color:#fcd34d;">All →</a>
+      </div>
+      {% for co in recent_companies %}
+        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0;">
+            {{ co.name[0].upper() }}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.85rem;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ co.name }}</div>
+            <div class="text-xs text-muted">
+              {% if co.is_approved %}<span style="color:#6ee7b7;">Approved</span>{% else %}<span style="color:#fcd34d;">Pending</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Quick Links -->
+    <div class="glass p-card">
+      <div class="section-title mb-2">Quick Actions</div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;">
+        <a href="{{ url_for('admin.export_report') }}" class="btn-success-custom" style="text-align:center;padding:0.6rem;">
+          <i class="bi bi-download"></i> Export CSV Report
+        </a>
+        <a href="{{ url_for('admin.manage_companies', status='pending') }}" class="btn-outline-custom" style="text-align:center;padding:0.6rem;font-size:0.85rem;">
+          Review Pending Companies
+        </a>
+        <a href="{{ url_for('admin.manage_jobs', status='pending') }}" class="btn-outline-custom" style="text-align:center;padding:0.6rem;font-size:0.85rem;">
+          Review Pending Jobs
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block dashboard_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+fetch('/api/stats/admin')
+  .then(r => r.json())
+  .then(data => {
+    const palette = ['#6366f1','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6'];
+    // Status
+    new Chart(document.getElementById('statusChart').getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: data.status.labels, datasets: [{ data: data.status.data, backgroundColor: palette, borderWidth:0, hoverOffset:4 }] },
+      options: { cutout:'70%', plugins:{ legend:{ position:'bottom', labels:{ color:'#94a3b8', font:{size:9}, padding:6 } } } }
+    });
+    // Job types
+    new Chart(document.getElementById('typeChart').getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: data.job_types.labels, datasets: [{ data: data.job_types.data, backgroundColor: palette, borderWidth:0, hoverOffset:4 }] },
+      options: { cutout:'70%', plugins:{ legend:{ position:'bottom', labels:{ color:'#94a3b8', font:{size:9}, padding:6 } } } }
+    });
+    // Daily registrations
+    new Chart(document.getElementById('regChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: data.daily_reg.labels,
+        datasets: [{ data: data.daily_reg.data, borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,0.1)', tension:0.4, fill:true, pointRadius:3, pointBackgroundColor:'#6366f1' }]
+      },
+      options: {
+        plugins:{ legend:{ display:false } },
+        scales:{
+          x:{ ticks:{ display:false }, grid:{ display:false } },
+          y:{ ticks:{ color:'#64748b', font:{size:9} }, grid:{ color:'rgba(255,255,255,0.05)' }, beginAtZero:true }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

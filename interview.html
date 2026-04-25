@@ -1,0 +1,57 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Schedule Interview{% endblock %}
+{% block role_label %}Company Portal{% endblock %}
+{% block page_title %}<i class="bi bi-calendar-check" style="color:#f59e0b;"></i> Schedule Interview{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('company.dashboard') }}" class="nav-item"><i class="bi bi-grid-fill nav-icon"></i> Dashboard</a>
+<a href="{{ url_for('company.my_jobs') }}" class="nav-item active"><i class="bi bi-list-ul nav-icon"></i> My Jobs</a>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:580px;">
+  <div class="glass p-card mb-3">
+    <div style="font-weight:700;color:#fff;">{{ application.student_name }}</div>
+    <div class="text-sm text-muted">{{ application.student_email }} · Applying for: {{ application.title }}</div>
+  </div>
+
+  <div class="glass p-card">
+    <div class="section-title mb-3">
+      {{ 'Update Interview' if interview else 'Schedule Interview' }}
+    </div>
+    <form method="POST" action="{{ url_for('company.schedule_interview', app_id=application.id) }}">
+      <div class="form-group">
+        <label class="form-label">Date & Time *</label>
+        <input class="form-input" type="datetime-local" name="scheduled_at" required
+               value="{{ interview.scheduled_at if interview else '' }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mode</label>
+        <select class="form-input" name="mode">
+          <option {{ 'selected' if interview and interview.mode=='Online' }}>Online</option>
+          <option {{ 'selected' if interview and interview.mode=='In-Person' }}>In-Person</option>
+          <option {{ 'selected' if interview and interview.mode=='Phone' }}>Phone</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Meeting Link / Location</label>
+        <input class="form-input" type="text" name="location_link"
+               value="{{ interview.location_link if interview else '' }}"
+               placeholder="https://meet.google.com/... or office address">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-input" name="notes" rows="3"
+                  placeholder="Interview instructions, topics to cover...">{{ interview.notes if interview else '' }}</textarea>
+      </div>
+      <div style="display:flex;gap:1rem;">
+        <button type="submit" class="btn-primary-custom" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">
+          <i class="bi bi-calendar-check"></i> {{ 'Update' if interview else 'Schedule' }} Interview
+        </button>
+        <a href="{{ url_for('company.applicants', job_id=application.job_id) }}" class="btn-outline-custom">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

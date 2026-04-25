@@ -1,0 +1,66 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Manage Companies{% endblock %}
+{% block role_label %}Admin Panel{% endblock %}
+{% block page_title %}<i class="bi bi-building" style="color:#10b981;"></i> Manage Companies{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('admin.dashboard') }}" class="nav-item"><i class="bi bi-grid-fill nav-icon"></i> Dashboard</a>
+<a href="{{ url_for('admin.manage_companies') }}" class="nav-item active"><i class="bi bi-building nav-icon"></i> Companies</a>
+<a href="{{ url_for('admin.manage_jobs') }}" class="nav-item"><i class="bi bi-briefcase nav-icon"></i> Jobs</a>
+<a href="{{ url_for('admin.manage_students') }}" class="nav-item"><i class="bi bi-people nav-icon"></i> Students</a>
+<a href="{{ url_for('admin.reports') }}" class="nav-item"><i class="bi bi-bar-chart nav-icon"></i> Reports</a>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+  {% for s, label in [('all','All'),('pending','Pending'),('approved','Approved')] %}
+    <a href="{{ url_for('admin.manage_companies', status=s) }}"
+       class="btn-{{ 'primary' if status==s else 'outline' }}-custom"
+       style="font-size:0.85rem;padding:0.5rem 1.1rem;{% if status==s %}background:linear-gradient(135deg,#10b981,#059669);{% endif %}">
+      {{ label }}
+    </a>
+  {% endfor %}
+</div>
+
+<div class="glass p-card">
+  {% if companies %}
+    <table class="data-table">
+      <thead>
+        <tr><th>Company</th><th>Industry</th><th>Email</th><th>Status</th><th>Registered</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for co in companies %}
+        <tr>
+          <td style="font-weight:600;color:#e2e8f0;">{{ co.name }}</td>
+          <td class="text-sm text-muted">{{ co.industry or '—' }}</td>
+          <td class="text-xs text-muted">{{ co.email }}</td>
+          <td>
+            {% if co.is_approved %}
+              <span class="badge badge-approved">Approved</span>
+            {% else %}
+              <span class="badge badge-pending">Pending</span>
+            {% endif %}
+          </td>
+          <td class="text-xs text-muted">{{ co.created_at[:10] }}</td>
+          <td>
+            <div style="display:flex;gap:0.4rem;">
+              {% if not co.is_approved %}
+                <form method="POST" action="{{ url_for('admin.approve_company', cid=co.id) }}">
+                  <button class="btn-success-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">✓ Approve</button>
+                </form>
+              {% endif %}
+              <form method="POST" action="{{ url_for('admin.reject_company', cid=co.id) }}" onsubmit="return confirm('Remove this company?')">
+                <button class="btn-danger-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">✗ Remove</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div style="text-align:center;padding:3rem;color:#475569;">No companies found.</div>
+  {% endif %}
+</div>
+{% endblock %}

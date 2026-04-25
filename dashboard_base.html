@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block body %}
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <a href="{{ url_for('main.index') }}" class="logo-icon" style="text-decoration:none;font-size:1.1rem;">🎯</a>
+    <div>
+      <div class="logo-text">PlacementPro</div>
+      <div class="logo-sub">{% block role_label %}Dashboard{% endblock %}</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    {% block sidebar_nav %}{% endblock %}
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">{{ session.get('name','?')[0].upper() }}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="user-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          {{ session.get('name','User') }}
+        </div>
+        <div class="user-role">{{ session.get('role','') }}</div>
+      </div>
+      <a href="{{ url_for('auth.logout') }}" title="Logout" style="color:#64748b;font-size:1rem;">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Topbar -->
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <button onclick="document.getElementById('sidebar').classList.toggle('open')"
+              style="background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;display:none;"
+              id="menuBtn" class="menu-btn">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="page-title">{% block page_title %}Dashboard{% endblock %}</div>
+    </div>
+    <div class="topbar-actions">
+      {% block topbar_actions %}{% endblock %}
+      <a href="{{ url_for('auth.logout') }}" class="btn-outline-custom" style="padding:0.5rem 1rem;font-size:0.8rem;">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </a>
+    </div>
+  </header>
+
+  <!-- Flash Messages -->
+  <div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">
+          <i class="bi bi-{% if cat == 'success' %}check-circle{% elif cat == 'danger' %}exclamation-circle{% elif cat == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+          {{ msg }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+  </div>
+
+  <!-- Content -->
+  <main class="content-area">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script>
+// Responsive sidebar
+const mq = window.matchMedia('(max-width:768px)');
+const btn = document.getElementById('menuBtn');
+function checkMq(){ if(mq.matches) btn.style.display='block'; else btn.style.display='none'; }
+mq.addEventListener('change', checkMq); checkMq();
+</script>
+{% block dashboard_js %}{% endblock %}
+{% endblock %}

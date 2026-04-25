@@ -1,0 +1,67 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Manage Jobs{% endblock %}
+{% block role_label %}Admin Panel{% endblock %}
+{% block page_title %}<i class="bi bi-briefcase" style="color:#10b981;"></i> Manage Jobs{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('admin.dashboard') }}" class="nav-item"><i class="bi bi-grid-fill nav-icon"></i> Dashboard</a>
+<a href="{{ url_for('admin.manage_companies') }}" class="nav-item"><i class="bi bi-building nav-icon"></i> Companies</a>
+<a href="{{ url_for('admin.manage_jobs') }}" class="nav-item active"><i class="bi bi-briefcase nav-icon"></i> Jobs</a>
+<a href="{{ url_for('admin.manage_students') }}" class="nav-item"><i class="bi bi-people nav-icon"></i> Students</a>
+<a href="{{ url_for('admin.reports') }}" class="nav-item"><i class="bi bi-bar-chart nav-icon"></i> Reports</a>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+  {% for s, label in [('all','All'),('pending','Pending'),('approved','Approved')] %}
+    <a href="{{ url_for('admin.manage_jobs', status=s) }}"
+       class="btn-{{ 'primary' if status==s else 'outline' }}-custom"
+       style="font-size:0.85rem;padding:0.5rem 1.1rem;{% if status==s %}background:linear-gradient(135deg,#10b981,#059669);{% endif %}">
+      {{ label }}
+    </a>
+  {% endfor %}
+</div>
+
+<div class="glass p-card">
+  {% if jobs %}
+    <table class="data-table">
+      <thead>
+        <tr><th>Job Title</th><th>Company</th><th>Type</th><th>Location</th><th>Status</th><th>Posted</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for job in jobs %}
+        <tr>
+          <td style="font-weight:600;color:#e2e8f0;">{{ job.title }}</td>
+          <td class="text-sm text-muted">{{ job.company_name }}</td>
+          <td class="text-xs text-muted">{{ job.job_type }}</td>
+          <td class="text-xs text-muted">{{ job.location or 'Remote' }}</td>
+          <td>
+            {% if job.is_approved %}
+              <span class="badge badge-approved">Approved</span>
+            {% else %}
+              <span class="badge badge-pending">Pending</span>
+            {% endif %}
+          </td>
+          <td class="text-xs text-muted">{{ job.created_at[:10] }}</td>
+          <td>
+            <div style="display:flex;gap:0.4rem;">
+              {% if not job.is_approved %}
+                <form method="POST" action="{{ url_for('admin.approve_job', jid=job.id) }}">
+                  <button class="btn-success-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">✓ Approve</button>
+                </form>
+              {% endif %}
+              <form method="POST" action="{{ url_for('admin.reject_job', jid=job.id) }}" onsubmit="return confirm('Remove this job?')">
+                <button class="btn-danger-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">✗ Remove</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div style="text-align:center;padding:3rem;color:#475569;">No jobs found.</div>
+  {% endif %}
+</div>
+{% endblock %}

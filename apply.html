@@ -1,0 +1,82 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Apply for Job{% endblock %}
+{% block role_label %}Student Portal{% endblock %}
+{% block page_title %}<i class="bi bi-send" style="color:#6366f1;"></i> Apply for Job{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('student.dashboard') }}" class="nav-item"><i class="bi bi-grid-fill nav-icon"></i> Dashboard</a>
+<a href="{{ url_for('student.browse_jobs') }}" class="nav-item active"><i class="bi bi-briefcase nav-icon"></i> Browse Jobs</a>
+<a href="{{ url_for('student.my_applications') }}" class="nav-item"><i class="bi bi-file-earmark-text nav-icon"></i> My Applications</a>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;">
+  <!-- Job Summary -->
+  <div class="glass p-card mb-3">
+    <div style="display:flex;gap:1rem;align-items:flex-start;">
+      <div class="company-logo" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">
+        {{ job.company_name[0].upper() }}
+      </div>
+      <div>
+        <div style="font-size:1.3rem;font-weight:800;color:#fff;">{{ job.title }}</div>
+        <div class="text-muted">{{ job.company_name }} · {{ job.location or 'Remote' }}</div>
+        <div class="job-tags" style="margin-top:0.5rem;">
+          <span class="job-tag">{{ job.job_type }}</span>
+          {% if job.salary %}<span class="job-tag">{{ job.salary }}</span>{% endif %}
+          {% if job.deadline %}<span class="job-tag">Deadline: {{ job.deadline }}</span>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="text-sm" style="color:#94a3b8;line-height:1.8;">
+      <strong style="color:#e2e8f0;">Description:</strong><br>
+      {{ job.description }}
+    </div>
+
+    {% if job.requirements %}
+      <div class="text-sm" style="color:#94a3b8;margin-top:1rem;line-height:1.8;">
+        <strong style="color:#e2e8f0;">Requirements:</strong><br>
+        {{ job.requirements }}
+      </div>
+    {% endif %}
+
+    {% if job.skills_required %}
+      <div style="margin-top:1rem;">
+        <strong class="text-sm" style="color:#e2e8f0;">Skills Required:</strong>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem;">
+          {% for skill in job.skills_required.split(',') %}
+            <span class="job-tag">{{ skill.strip() }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Application Form -->
+  <div class="glass p-card">
+    <div class="section-title mb-3">Your Application</div>
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Cover Letter <span class="text-xs text-muted">(optional but recommended)</span></label>
+        <textarea class="form-input" name="cover_letter" rows="6"
+                  placeholder="Dear Hiring Manager,
+
+I am excited to apply for the {{ job.title }} position at {{ job.company_name }}. With my background in [your skills], I believe I would be a great fit for this role...
+
+Thank you for your consideration."></textarea>
+      </div>
+      <div style="display:flex;gap:1rem;align-items:center;">
+        <button type="submit" class="btn-primary-custom" style="padding:0.85rem 2rem;">
+          <i class="bi bi-send-fill"></i> Submit Application
+        </button>
+        <a href="{{ url_for('student.browse_jobs') }}" class="btn-outline-custom">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

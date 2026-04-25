@@ -1,0 +1,85 @@
+{% extends "dashboard_base.html" %}
+{% block title %}My Jobs{% endblock %}
+{% block role_label %}Company Portal{% endblock %}
+{% block page_title %}<i class="bi bi-list-ul" style="color:#f59e0b;"></i> My Job Listings{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('company.dashboard') }}" class="nav-item"><i class="bi bi-grid-fill nav-icon"></i> Dashboard</a>
+<a href="{{ url_for('company.post_job') }}" class="nav-item"><i class="bi bi-plus-circle nav-icon"></i> Post a Job</a>
+<a href="{{ url_for('company.my_jobs') }}" class="nav-item active"><i class="bi bi-list-ul nav-icon"></i> My Jobs</a>
+<a href="{{ url_for('auth.logout') }}" class="nav-item"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a>
+{% endblock %}
+
+{% block content %}
+{% if jobs %}
+  <div class="glass p-card">
+    <div class="section-header mb-2">
+      <div class="section-title">{{ jobs|length }} Job Listing{{ 's' if jobs|length != 1 }}</div>
+      <a href="{{ url_for('company.post_job') }}" class="btn-primary-custom" style="background:linear-gradient(135deg,#f59e0b,#ef4444);padding:0.5rem 1.25rem;font-size:0.85rem;">
+        <i class="bi bi-plus"></i> Post New Job
+      </a>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Job Title</th>
+          <th>Type</th>
+          <th>Applicants</th>
+          <th>Status</th>
+          <th>Posted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in jobs %}
+        <tr>
+          <td>
+            <div style="font-weight:600;color:#e2e8f0;">{{ job.title }}</div>
+            <div class="text-xs text-muted">{{ job.location or 'Remote' }}</div>
+          </td>
+          <td><span class="badge badge-applied">{{ job.job_type }}</span></td>
+          <td>
+            <a href="{{ url_for('company.applicants', job_id=job.id) }}" style="color:#a5b4fc;font-weight:600;">
+              {{ job.app_count }}
+            </a>
+          </td>
+          <td>
+            {% if not job.is_active %}
+              <span class="badge badge-rejected">Inactive</span>
+            {% elif job.is_approved %}
+              <span class="badge badge-approved">Live</span>
+            {% else %}
+              <span class="badge badge-pending">Pending Approval</span>
+            {% endif %}
+          </td>
+          <td class="text-xs text-muted">{{ job.created_at[:10] }}</td>
+          <td>
+            <div style="display:flex;gap:0.5rem;">
+              <a href="{{ url_for('company.applicants', job_id=job.id) }}" class="btn-success-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">
+                <i class="bi bi-people"></i>
+              </a>
+              <a href="{{ url_for('company.edit_job', job_id=job.id) }}" class="btn-outline-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <form method="POST" action="{{ url_for('company.delete_job', job_id=job.id) }}" style="display:inline;" onsubmit="return confirm('Delete this job?')">
+                <button class="btn-danger-custom" style="font-size:0.75rem;padding:0.3rem 0.65rem;">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="glass p-card" style="text-align:center;padding:4rem 2rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">💼</div>
+    <div style="color:#94a3b8;margin-bottom:1rem;">No jobs posted yet</div>
+    <a href="{{ url_for('company.post_job') }}" class="btn-primary-custom" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">
+      Post Your First Job →
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

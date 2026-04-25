@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Register as Student{% endblock %}
+
+{% block extra_css %}
+<style>
+.auth-wrapper { min-height:100vh;background:#0a0a14;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden; }
+.auth-bg { position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 30% 30%, rgba(99,102,241,0.2) 0%, transparent 60%),radial-gradient(ellipse 40% 40% at 70% 70%, rgba(139,92,246,0.12) 0%, transparent 50%);pointer-events:none; }
+.auth-card { width:100%;max-width:480px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(30px);border-radius:24px;padding:2.5rem;animation:slideUp 0.5s ease;position:relative;z-index:1; }
+.auth-logo { display:flex;align-items:center;gap:0.75rem;margin-bottom:2rem;text-decoration:none; }
+.auth-logo .icon { width:40px;height:40px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem; }
+.auth-logo .text { font-weight:800;font-size:1.1rem;color:#fff; }
+.auth-logo .sub  { font-size:0.7rem;color:#64748b; }
+.auth-title { font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:0.4rem; }
+.auth-sub   { font-size:0.9rem;color:#64748b;margin-bottom:2rem; }
+.auth-footer { text-align:center;margin-top:1.5rem;font-size:0.875rem;color:#64748b; }
+.auth-footer a { color:#a5b4fc;font-weight:600; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="auth-bg"></div>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <a href="{{ url_for('main.index') }}" class="auth-logo">
+      <div class="icon">🎓</div>
+      <div>
+        <div class="text">Student Registration</div>
+        <div class="sub">PlacementPro</div>
+      </div>
+    </a>
+
+    <h1 class="auth-title">Create your account</h1>
+    <p class="auth-sub">Start your placement journey today</p>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}"><i class="bi bi-exclamation-circle"></i> {{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label" for="name">Full Name</label>
+        <input class="form-input" type="text" name="name" id="name" placeholder="John Doe" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input class="form-input" type="email" name="email" id="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" name="password" id="password" placeholder="Min. 6 characters" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="confirm_password">Confirm Password</label>
+        <input class="form-input" type="password" name="confirm_password" id="confirm_password" placeholder="Re-enter password" required>
+      </div>
+      <button type="submit" class="btn-primary-custom" style="width:100%;justify-content:center;padding:0.9rem;margin-top:0.5rem;">
+        <i class="bi bi-mortarboard-fill"></i> Create Student Account
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="{{ url_for('auth.login') }}">Sign In</a>
+      &nbsp;·&nbsp; Are you a company? <a href="{{ url_for('auth.register_company') }}">Register Company</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
